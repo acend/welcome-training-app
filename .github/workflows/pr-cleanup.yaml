@@ -1,0 +1,22 @@
+name: PR cleanup
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  cleanup:
+    runs-on: 'ubuntu-latest'
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      -
+        name: Delete pr image on Quay
+        id: delete_pr_image
+        env:
+          PR_NUMBER: '${{ github.event.pull_request.number }}'
+          QUAYIO_API_TOKEN: '${{ secrets.QUAYIO_API_TOKEN }}'
+        run: |
+          curl -X DELETE -H "Authorization: Bearer ${QUAYIO_API_TOKEN}" https://quay.io/api/v1/repository/acend/welcome-training-app/tag/pr-${PR_NUMBER}
