@@ -57,12 +57,7 @@ func index() http.Handler {
 		}
 
 		var passworkKey = "password"
-		if pwk := os.Getenv("SECRET_PASSWORD_KEY"); v != "" {
-			passworkKey = pwk
-		}
-
-		var passworkKey = "password"
-		if pwk := os.Getenv("SECRET_PASSWORD_KEY"); v != "" {
+		if pwk := os.Getenv("SECRET_PASSWORD_KEY"); pwk != "" {
 			passworkKey = pwk
 		}
 
@@ -99,7 +94,7 @@ func index() http.Handler {
 
 		data := map[string]interface{}{
 			"clusterName":   clusterName,
-			"clusterDomain": clusterDomain
+			"clusterDomain": clusterDomain,
 			"trainees":      trainees,
 		}
 
