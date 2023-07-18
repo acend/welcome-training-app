@@ -1,11 +1,18 @@
 {{define "body"}}
+
+<h2>Tools</h2>
+
+<ul>
+  <li><a href="https://argocd.{{ $.clusterName}}.{{ $.clusterDomain}}">ArgoCD</a></li>
+  <li><a href="https://gitea.{{ $.clusterName}}.{{ $.clusterDomain}}">Gitea</a></li>
+</ul>
+
 <table>
     <thead>
       <tr>
         <th>Webshell</th>
         <th>Namespace / Username</th>
         <th>Password</th>
-        <th>Tools</th>
         <th>Training Pages</th>
       </tr>
     </thead>
@@ -15,11 +22,6 @@
         <td><a href="https://{{ .Username }}:{{ .Password }}@{{ .Username }}.{{ $.clusterName}}.{{ $.clusterDomain}}">https://{{ .Username }}.{{ $.clusterName}}.{{ $.clusterDomain}}</a></td>
         <td>{{ .Username }}</td>
         <td>{{ .Password }}</td>
-        <td>
-          <ul>
-            <li><a href="https://argocd.{{ $.clusterName}}.{{ $.clusterDomain}}">ArgoCD</a></li>
-            <li><a href="https://gitea.{{ $.clusterName}}.{{ $.clusterDomain}}">Gitea</a></li>
-        </td>
         <td>
             <ul>
                 <li><a href="https://container-basics.training.acend.ch?a={{ $.clusterName}}.{{ $.clusterDomain}}&n={{ .Username }}">Container Basics</a></li>
