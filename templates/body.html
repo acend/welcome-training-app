@@ -12,7 +12,7 @@
     <tbody>
       {{ range .trainees}}
       <tr>
-        <td><a href="https://{{ .Username }}:{{ .Password }}@${{ .Username }}.{{ $.clusterName}}.{{ $.clusterDomain}}">https://{{ .Username }}.{{ $.clusterName}}.{{ $.clusterDomain}}</a></td>
+        <td><a href="https://{{ .Username }}:{{ .Password }}@{{ .Username }}.{{ $.clusterName}}.{{ $.clusterDomain}}">https://{{ .Username }}.{{ $.clusterName}}.{{ $.clusterDomain}}</a></td>
         <td>{{ .Username }}</td>
         <td>{{ .Password }}</td>
         <td>
