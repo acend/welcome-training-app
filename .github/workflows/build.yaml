@@ -31,5 +31,5 @@ jobs:
         with:
           push: true
           tags: |
-            quay.io/acend/"welcome-training-app":pr-${{ github.event.pull_request.number }}
+            quay.io/acend/welcome-training-app:pr-${{ github.event.pull_request.number }}
 
