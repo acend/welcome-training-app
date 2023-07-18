@@ -31,7 +31,6 @@ jobs:
         name: Build app image
         uses: docker/build-push-action@v3
         with:
-          context: go
           push: true
           tags: |
             quay.io/acend/welcome-training-app:latest

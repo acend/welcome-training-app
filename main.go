@@ -46,7 +46,35 @@ func index() http.Handler {
 		config := ctrl.GetConfigOrDie()
 		clientset := kubernetes.NewForConfigOrDie(config)
 
-		labelSelector := "acend-userconfig=true"
+		var labelSelector = "acend-userconfig=true"
+		if ls := os.Getenv("LABEL_SELECtOR"); ls != "" {
+			labelSelector = ls
+		}
+
+		var usernameKey = "username"
+		if unk := os.Getenv("SECRET_USERNAME_KEY"); unk != "" {
+			usernameKey = unk
+		}
+
+		var passworkKey = "password"
+		if pwk := os.Getenv("SECRET_PASSWORD_KEY"); v != "" {
+			passworkKey = pwk
+		}
+
+		var passworkKey = "password"
+		if pwk := os.Getenv("SECRET_PASSWORD_KEY"); v != "" {
+			passworkKey = pwk
+		}
+
+		var clusterName = "training"
+		if cn := os.Getenv("CLUSTER_NAME"); cn != "" {
+			clusterName = cn
+		}
+
+		var clusterDomain = "cluster.acend.ch"
+		if cd := os.Getenv("CLUSTER_DOMAIN"); cd != "" {
+			clusterDomain = cd
+		}
 
 		// Define the options to list secrets
 		listOptions := metav1.ListOptions{
@@ -62,16 +90,16 @@ func index() http.Handler {
 
 		for _, secret := range secretList.Items {
 			var trainee = Trainee{
-				Username: string(secret.Data["username"]),
-				Password: string(secret.Data["password"]),
+				Username: string(secret.Data[usernameKey]),
+				Password: string(secret.Data[passworkKey]),
 			}
 
 			trainees = append(trainees, trainee)
 		}
 
 		data := map[string]interface{}{
-			"clusterName":   "test",
-			"clusterDomain": "cluster.acend.ch",
+			"clusterName":   clusterName,
+			"clusterDomain": clusterDomain
 			"trainees":      trainees,
 		}
 
