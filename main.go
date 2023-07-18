@@ -47,7 +47,7 @@ func index() http.Handler {
 		clientset := kubernetes.NewForConfigOrDie(config)
 
 		var labelSelector = "acend-userconfig=true"
-		if ls := os.Getenv("LABEL_SELECtOR"); ls != "" {
+		if ls := os.Getenv("LABEL_SELECTOR"); ls != "" {
 			labelSelector = ls
 		}
 
