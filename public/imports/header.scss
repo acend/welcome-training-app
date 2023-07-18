@@ -1,0 +1,210 @@
+.header {
+  transition:  box-shadow 0.3s ease-in-out, background-color 0.1s linear;
+
+  &.nav-open {
+    background: var(--primary);
+    background-image: url("../images/AC_Muster_1_RGB_Weiss--10-v2.png");
+    background-attachment: fixed;
+    background-size: 1675px;
+
+    bottom: 0;
+
+    a {
+      color: #fff;
+    }
+
+    #logo {
+        //transform: translateX(0) !important;
+        opacity: 1  !important;
+         path {
+           //#claim:()
+          fill: #fff;
+        }
+        #claim {
+          display: none;
+        }
+    }
+  }
+
+
+
+  .navbar-brand {
+    width: 200px;
+  }
+
+    #claim {
+      transition:  opacity 0.2s ease-in-out;
+
+      body:not(.home) & {
+        display: none;
+      }
+    }
+  
+  &[data-scroll="in"] {
+
+    .navbar-brand {
+      width: 200px;
+      overflow: hidden;
+    }
+
+    #claim {
+      opacity: 0;
+     }
+  }
+}
+
+.navbar-toggler {
+
+   position: fixed;
+    z-index: 5;
+    right: 15px;
+    top: 15px;
+
+  padding: 0; 
+  background-color: #fff;
+  border: none;
+  border-radius: 0;
+  outline: none !important;
+  transition:  box-shadow 0.3s ease-in-out;
+
+
+  .toggler-icon {
+    #top, #bottom {
+       transition:  transform 0.2s ease-in-out;
+    }
+  }
+  &[aria-expanded="true"] {
+    
+      background-color: transparent;
+     box-shadow: none !important;
+
+      .toggler-icon {
+         #top {
+           transform: translateY(15px);
+         }
+         #bottom {
+           transform: translateY(-15px);
+        }
+
+        polygon, rect {
+          fill: #fff;
+        }
+    }
+  }
+}
+
+.nav-item {
+  text-align: center;
+  margin-top: 3em;
+}
+
+.nav-link {
+  font-size: 1.75rem;
+  padding-left: 0 !important;
+  padding-bottom: 0 !important;
+  position: relative;
+  white-space: nowrap;
+
+  &::after {
+    content: "";
+    display: block;
+    width: 0;
+    height: 1px;
+    background-color: var(--primary);
+    //position: absolute;
+    //right: 0;
+    //bottom: 0;
+    transition: width .2s ease-in-out 0.1s;
+  }
+
+  &::before {
+    content: "";
+    display: block;
+    width: 1px;
+    height: 0;
+    background-color: var(--primary);
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    transition: height .1s ease-in-out;
+  }
+ 
+
+  .active & {
+      //border-bottom: 1px solid;
+      &::after {
+        width: 100%;
+        width: calc(100% + 0.5rem );
+      }
+      &::before {
+        content: "";
+        height: 10px;
+      }
+    }
+
+  &:hover {
+      //border-bottom: 1px solid;
+      &::after {
+        width: 100%;
+        width: calc(100% + 0.5rem );
+        transition-delay: 0s;
+      }
+      &::before {
+        content: "";
+        height: 10px;
+        transition-delay: 0.25s;
+      }
+    }
+}
+
+
+
+.link-border {
+  display: inline-block;
+  position: relative;
+  padding-right:  0.5rem;
+
+  &::after {
+    content: "";
+    display: block;
+    width: 100%;
+    width: calc(100% + 0.5rem );
+    height: 1px;
+    background-color: var(--primary);
+    .bg-primary & {
+      background-color: #fff;
+    }
+    //position: absolute;
+    //right: 0;
+    //bottom: 0;
+    transition: width .2s ease-in-out;
+  }
+
+  &::before {
+    content: "";
+    display: block;
+    width: 1px;
+    height: 10px;
+    background-color: var(--primary);
+    .bg-primary & {
+      background-color: #fff;
+    }
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    transition: height .1s ease-in-out  0.25s;
+  }
+
+    &:hover {
+      //border-bottom: 1px solid;
+      &::after {
+        width: 0;
+        transition-delay: 0.2s;
+      }
+      &::before {
+        content: "";
+        height: 0;
+        transition-delay: 0s;
+      }
+    }
+}

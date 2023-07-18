@@ -1,0 +1,128 @@
+@charset "UTF-8";
+/*
+  Define your resets here or use something like Normalize.css if you like
+ */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+/**
+ * @license
+ * MyFonts Webfont Build ID 3938487, 2020-08-21T07:55:13-0400
+ * 
+ * The fonts listed in this notice are subject to the End User License
+ * Agreement(s) entered into by the website owner. All other parties are 
+ * explicitly restricted from using the Licensed ../fonts(s).
+ * 
+ * You may obtain a valid license at the URLs below.
+ * 
+ * Webfont: TTFirsNeue-Light by TypeType
+ * URL: https://www.myfonts.com/fonts/type-type/tt-firs-neue/light/
+ * 
+ * Webfont: TTFirsNeue-Medium by TypeType
+ * URL: https://www.myfonts.com/fonts/type-type/tt-firs-neue/medium/
+ * 
+ * 
+ * Webfonts copyright: Copyright (c) 2018 by Typetype. Designer Ivan Gladkikh, technical designers Philipp Nurullin, Vika Usmanova, Nadyr Rakhimov, Marina Khodak. All rights reserved.
+ * 
+ * © 2020 MyFonts Inc
+*/
+@font-face {
+  font-family: "TTFirsNeue-Medium";
+  src: url("../fonts/TTFirsNeue-Medium/font.woff2") format("woff2"), url("../fonts/TTFirsNeue-Medium/font.woff") format("woff");
+  font-display: swap;
+}
+@font-face {
+  font-family: "TTFirsNeue-Light";
+  src: url("../fonts/TTFirsNeue-Light/font.woff2") format("woff2"), url("../fonts/TTFirsNeue-Light/font.woff") format("woff");
+  font-display: swap;
+}
+:root {
+  --primary: #074761;
+  --primary-light: #e7ecee;
+}
+
+html {
+  font-size: 16px;
+  line-height: 30px;
+}
+
+body {
+  font-family: "TTFirsNeue-Light", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-display: swap;
+  display: flex;
+  flex-direction: column;
+  /*align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-color: #282c34;
+  color: white;*/
+  padding: 1rem;
+  color: #074761;
+  color: var(--primary);
+  -moz-font-feature-settings: "ss01";
+  -webkit-font-feature-settings: "ss01";
+  font-feature-settings: "ss01";
+}
+
+h1,
+.h1,
+h2,
+.h2,
+h3,
+.h3,
+h4,
+.h4,
+h5,
+.h5,
+h6,
+.h6 {
+  font-family: "TTFirsNeue-Medium", sans-serif;
+  font-weight: normal;
+}
+
+h2,
+.h2 {
+  font-size: 1.375rem;
+}
+
+h3,
+.h3,
+.category,
+.accordion-title,
+.footer-section h5,
+.paragraph-lg,
+.quote {
+  font-size: 1.375rem;
+}
+
+h4,
+.h4 {
+  font-family: "TTFirsNeue-Light", sans-serif;
+  font-size: 1.125rem;
+}
+
+.bold {
+  font-family: "TTFirsNeue-Medium", sans-serif;
+}
+
+.small-bold {
+  font-family: "TTFirsNeue-Medium", sans-serif;
+  font-size: 14px;
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: none;
+  color: var(--primary);
+}
+
+/*# sourceMappingURL=main.css.map */

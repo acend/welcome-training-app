@@ -1,4 +1,5 @@
 {{define "body"}}
+<h1 >Welcome to your acend training</h1>
 
 <h2>Tools</h2>
 
@@ -7,13 +8,15 @@
   <li><a href="https://gitea.{{ $.clusterName}}.{{ $.clusterDomain}}">Gitea</a></li>
 </ul>
 
-<table>
+<h2>Webshells</h2>
+
+<table class="table">
     <thead>
       <tr>
-        <th>Webshell</th>
-        <th>Namespace / Username</th>
-        <th>Password</th>
-        <th>Training Pages</th>
+        <th scope="col">Webshell</th>
+        <th scope="col">Namespace / Username</th>
+        <th scope="col">Password</th>
+        <th scope="col">Training Pages</th>
       </tr>
     </thead>
     <tbody>
@@ -35,4 +38,5 @@
       {{ end }}
     </tbody>
   </table>
+
   {{end}}
