@@ -10,8 +10,8 @@
 
 <h2>Webshells</h2>
 
-<table class="table">
-    <thead>
+<table class="table .table-striped">
+    <thead class="table-light">
       <tr>
         <th scope="col">Webshell</th>
         <th scope="col">Namespace / Username</th>
@@ -19,7 +19,7 @@
         <th scope="col">Training Pages</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody class="table-group-divider">
       {{ range .trainees}}
       <tr>
         <td><a href="https://{{ .Username }}:{{ .Password }}@{{ .Username }}.{{ $.clusterName}}.{{ $.clusterDomain}}">https://{{ .Username }}.{{ $.clusterName}}.{{ $.clusterDomain}}</a></td>
