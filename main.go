@@ -20,6 +20,12 @@ import (
 // to help speed up response times.
 var templates = template.Must(template.ParseFiles("./templates/base.html", "./templates/body.html"))
 
+var labelSelector = "acend-userconfig=true"
+var usernameKey = "username"
+var passwordKey = "password"
+var clusterName = "training"
+var clusterDomain = "cluster.acend.ch"
+
 type Trainee struct {
 	Username string
 	Password string
@@ -42,34 +48,8 @@ func index() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		ctx := context.Background()
-
 		config := ctrl.GetConfigOrDie()
 		clientset := kubernetes.NewForConfigOrDie(config)
-
-		var labelSelector = "acend-userconfig=true"
-		if ls := os.Getenv("LABEL_SELECTOR"); ls != "" {
-			labelSelector = ls
-		}
-
-		var usernameKey = "username"
-		if unk := os.Getenv("SECRET_USERNAME_KEY"); unk != "" {
-			usernameKey = unk
-		}
-
-		var passworkKey = "password"
-		if pwk := os.Getenv("SECRET_PASSWORD_KEY"); pwk != "" {
-			passworkKey = pwk
-		}
-
-		var clusterName = "training"
-		if cn := os.Getenv("CLUSTER_NAME"); cn != "" {
-			clusterName = cn
-		}
-
-		var clusterDomain = "cluster.acend.ch"
-		if cd := os.Getenv("CLUSTER_DOMAIN"); cd != "" {
-			clusterDomain = cd
-		}
 
 		// Define the options to list secrets
 		listOptions := metav1.ListOptions{
@@ -86,7 +66,7 @@ func index() http.Handler {
 		for _, secret := range secretList.Items {
 			var trainee = Trainee{
 				Username: string(secret.Data[usernameKey]),
-				Password: string(secret.Data[passworkKey]),
+				Password: string(secret.Data[passwordKey]),
 			}
 
 			trainees = append(trainees, trainee)
@@ -112,14 +92,41 @@ func public() http.Handler {
 	return http.StripPrefix("/public/", http.FileServer(http.Dir("./public")))
 }
 
+func health() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+}
+
 func main() {
 	mux := http.NewServeMux()
+	mux.Handle("/health/", logging(health()))
 	mux.Handle("/public/", logging(public()))
 	mux.Handle("/", logging(index()))
 
 	port, ok := os.LookupEnv("PORT")
 	if !ok {
 		port = "8080"
+	}
+
+	if ls := os.Getenv("LABEL_SELECTOR"); ls != "" {
+		labelSelector = ls
+	}
+
+	if unk := os.Getenv("SECRET_USERNAME_KEY"); unk != "" {
+		usernameKey = unk
+	}
+
+	if pwk := os.Getenv("SECRET_PASSWORD_KEY"); pwk != "" {
+		passwordKey = pwk
+	}
+
+	if cn := os.Getenv("CLUSTER_NAME"); cn != "" {
+		clusterName = cn
+	}
+
+	if cd := os.Getenv("CLUSTER_DOMAIN"); cd != "" {
+		clusterDomain = cd
 	}
 
 	addr := fmt.Sprintf(":%s", port)
