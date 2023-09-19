@@ -25,6 +25,7 @@ var usernameKey = "username"
 var passwordKey = "password"
 var clusterName = "training"
 var clusterDomain = "cluster.acend.ch"
+var token = ""
 
 type Trainee struct {
 	Username string
@@ -46,6 +47,12 @@ func logging(next http.Handler) http.Handler {
 // index is the handler responsible for rending the index page for the site.
 func index() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		t := r.URL.Query().Get("token")
+		if token != "" && t != token {
+			http.Error(w, fmt.Sprintf("you are not allowed to access this page"), http.StatusForbidden)
+			return
+		}
 
 		ctx := context.Background()
 		config := ctrl.GetConfigOrDie()
@@ -123,6 +130,10 @@ func main() {
 
 	if cn := os.Getenv("CLUSTER_NAME"); cn != "" {
 		clusterName = cn
+	}
+
+	if t := os.Getenv("TOKEN"); t != "" {
+		token = t
 	}
 
 	if cd := os.Getenv("CLUSTER_DOMAIN"); cd != "" {
