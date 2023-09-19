@@ -32,12 +32,12 @@ body {
 */
 @font-face {
   font-family: "TTFirsNeue-Medium";
-  src: url("../fonts/TTFirsNeue-Medium/font.woff2") format("woff2"), url("../fonts/TTFirsNeue-Medium/font.woff") format("woff");
+  src: url("fonts/TTFirsNeue-Medium/font.woff2") format("woff2"), url("fonts/TTFirsNeue-Medium/font.woff") format("woff");
   font-display: swap;
 }
 @font-face {
   font-family: "TTFirsNeue-Light";
-  src: url("../fonts/TTFirsNeue-Light/font.woff2") format("woff2"), url("../fonts/TTFirsNeue-Light/font.woff") format("woff");
+  src: url("fonts/TTFirsNeue-Light/font.woff2") format("woff2"), url("fonts/TTFirsNeue-Light/font.woff") format("woff");
   font-display: swap;
 }
 :root {
