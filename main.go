@@ -45,13 +45,17 @@ func logging(next http.Handler) http.Handler {
 }
 
 // index is the handler responsible for rending the index page for the site.
-func index() http.Handler {
+func index(teacher bool) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		t := r.URL.Query().Get("token")
-		if token != "" && t != token {
-			http.Error(w, fmt.Sprintf("you are not allowed to access this page"), http.StatusForbidden)
-			return
+		log.Println(r)
+
+		if !teacher {
+			t := r.URL.Query().Get("token")
+			if token != "" && t != token {
+				http.Error(w, fmt.Sprintf("you are not allowed to access this page"), http.StatusForbidden)
+				return
+			}
 		}
 
 		ctx := context.Background()
@@ -83,6 +87,8 @@ func index() http.Handler {
 			"clusterName":   clusterName,
 			"clusterDomain": clusterDomain,
 			"trainees":      trainees,
+			"teacher":       teacher,
+			"token":         token,
 		}
 
 		err2 := templates.ExecuteTemplate(w, "base", &data)
@@ -109,7 +115,8 @@ func main() {
 	mux := http.NewServeMux()
 	mux.Handle("/health/", logging(health()))
 	mux.Handle("/public/", logging(public()))
-	mux.Handle("/", logging(index()))
+	mux.Handle("/", logging(index(false)))
+	mux.Handle("/teacher", logging(index(true)))
 
 	port, ok := os.LookupEnv("PORT")
 	if !ok {

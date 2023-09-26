@@ -1,6 +1,14 @@
 {{define "body"}}
 <h1 >Welcome to your acend training</h1>
 
+{{if .teacher }}
+<h2>Access</h2>
+<ul>
+  <li>Token: {{ .token }}</li>
+  <li>URL: <a href="https://welcome.{{ $.clusterName}}.{{ $.clusterDomain}}?token={{.token}}">https://welcome.{{ $.clusterName}}.{{ $.clusterDomain}}?token={{.token}}</li>
+ </ul>
+{{end}}
+
 <h2>Tools</h2>
 
 <ul>
