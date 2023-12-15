@@ -22,7 +22,7 @@
     <thead class="table-light">
       <tr>
         <th scope="col">Webshell</th>
-        <th scope="col">Namespace / Username</th>
+        <th scope="col">Accounts</th>
         <th scope="col">Password</th>
         <th scope="col">Training Pages</th>
       </tr>
@@ -31,8 +31,16 @@
       {{ range .trainees}}
       <tr>
         <td><a href="https://{{ .Username }}:{{ .Password }}@{{ .Username }}.{{ $.clusterName}}.{{ $.clusterDomain}}">https://{{ .Username }}.{{ $.clusterName}}.{{ $.clusterDomain}}</a></td>
-        <td>{{ .Username }}</td>
-        <td>{{ .Password }}</td>
+        <td>
+          Username: {{ .Username }}<br />
+          Namespace: {{ .Username }}<br &>
+          Azure Account: {{ .Username }}@acend.onmicrosoft.com
+        </td>
+        <td>
+          <span id="password{{ .Username }}">{{ .Password }}</span> 
+          <iconify-icon class="copy-icon" data-password-id="password{{ .Username }}" data-bs-toggle="tooltip" data-bs-placement="right" title="Copy to Clipboard" icon="mdi:content-copy"></iconify-icon>
+    
+        </td>
         <td>
             <ul>
                 <li><a href="https://container-basics.training.acend.ch?a={{ $.clusterName}}.{{ $.clusterDomain}}&n={{ .Username }}">Container Basics</a></li>
@@ -47,5 +55,62 @@
       {{ end }}
     </tbody>
   </table>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Enable Bootstrap tooltips
+      var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+      var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+      });
+  
+      // Handle click event on copy icon
+      var copyIcons = document.querySelectorAll('.copy-icon');
+      copyIcons.forEach(function (copyIcon) {
+        copyIcon.addEventListener('click', function () {
+          // Get the ID of the password span
+          var passwordId = copyIcon.getAttribute('data-password-id');
+  
+          // Select the text in the password span
+          var passwordText = document.getElementById(passwordId);
+          var range = document.createRange();
+          range.selectNode(passwordText);
+          window.getSelection().removeAllRanges();
+          window.getSelection().addRange(range);
+  
+          // Copy the selected text to clipboard
+          document.execCommand('copy');
+  
+          // Clear the selection
+          window.getSelection().removeAllRanges();
+  
+          // Destroy the existing tooltip
+          var tooltip = bootstrap.Tooltip.getInstance(copyIcon);
+          tooltip.dispose();
+
+          // Create a new tooltip with the updated title
+          new bootstrap.Tooltip(copyIcon, {
+            title: 'Copied!',
+            placement: 'right',
+          });
+
+          // Show the new tooltip
+          var tooltip =  bootstrap.Tooltip.getInstance(copyIcon)
+          tooltip.show();
+
+          // Hide the tooltip after a short delay
+          setTimeout(function () {
+            var tooltip =  bootstrap.Tooltip.getInstance(copyIcon)
+            tooltip.dispose();
+            new bootstrap.Tooltip(copyIcon, {
+              title: 'Copy to Clipboard',
+              placement: 'right',
+            });
+          }, 1000);
+
+        });
+      });
+    });
+  </script>
 
   {{end}}
