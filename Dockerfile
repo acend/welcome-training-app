@@ -9,7 +9,7 @@ COPY *.go ./
 
 RUN GO111MODULE=auto CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o app
 
-FROM alpine:3.18
+FROM alpine:3.19
 LABEL maintainer="acend"
 
 EXPOSE 8080
