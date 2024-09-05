@@ -2,7 +2,7 @@ module github.com/acend/training-welcome-app
 
 go 1.22.0
 
-toolchain go1.23.0
+toolchain go1.23.1
 
 require (
 	k8s.io/apimachinery v0.31.0
