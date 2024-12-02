@@ -7,7 +7,7 @@ toolchain go1.23.1
 require (
 	k8s.io/apimachinery v0.31.1
 	k8s.io/client-go v0.31.1
-	sigs.k8s.io/controller-runtime v0.19.0
+	sigs.k8s.io/controller-runtime v0.19.3
 )
 
 require (
