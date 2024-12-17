@@ -18,7 +18,7 @@ import (
 
 // templates parses the specified templates and caches the parsed results
 // to help speed up response times.
-var templates = template.Must(template.ParseFiles("./templates/base.html", "./templates/body.html"))
+var templates = template.Must(template.ParseFiles("./templates/base.html", "./templates/body.html", "./templates/login.html"))
 
 var labelSelector = "acend-userconfig=true"
 var usernameKey = "username"
@@ -48,12 +48,14 @@ func logging(next http.Handler) http.Handler {
 func index(teacher bool) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		log.Println(r)
-
 		if !teacher {
 			t := r.URL.Query().Get("token")
 			if token != "" && t != token {
-				http.Error(w, fmt.Sprintf("you are not allowed to access this page"), http.StatusForbidden)
+				if err := templates.ExecuteTemplate(w, "login", nil); err != nil {
+					http.Error(w, fmt.Sprintf("index: couldn't parse template: %v", err), http.StatusInternalServerError)
+					return
+				}
+				w.WriteHeader(http.StatusOK)
 				return
 			}
 		}
