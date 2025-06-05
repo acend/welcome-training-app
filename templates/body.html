@@ -16,6 +16,10 @@
 </ul>
 
 <h2>Webshells</h2>
+<div class="form-check form-switch mb-2">
+  <input class="form-check-input" type="checkbox" id="toggleHideTaken">
+  <label class="form-check-label" for="toggleHideTaken">Hide taken trainees</label>
+</div>
 <table class="table .table-striped">
     <thead class="table-light">
       <tr>
@@ -28,7 +32,7 @@
     </thead>
     <tbody class="table-group-divider">
       {{ range .trainees}}
-      <tr>
+      <tr class="trainee-row" data-username="{{ .Username }}" data-display-name="{{ .DisplayName }}">
         <td><a href="https://{{ .Username }}:{{ .Password }}@{{ .Username }}.{{ $.clusterName}}.{{ $.clusterDomain}}">https://{{ .Username }}.{{ $.clusterName}}.{{ $.clusterDomain}}</a></td>
         <td>
           Username: {{ .Username }}
@@ -162,14 +166,111 @@
         document.querySelectorAll('.trainee-name-input').forEach(function(input) {
           var username = input.getAttribute('data-username');
           var current = input.value;
+          var newName = (names[username] !== undefined && names[username] !== null) ? names[username] : '';
+          if (document.activeElement !== input && current !== newName) {
+            input.value = newName;
+          }
+          // Update row attribute for filtering
+          var row = input.closest('.trainee-row');
+          if (row) row.setAttribute('data-display-name', newName);
+        });
+        updateTraineeRowVisibility();
+      }
+
+      // Toggle hide taken trainees
+      var toggle = document.getElementById('toggleHideTaken');
+      function updateTraineeRowVisibility() {
+        var hideTaken = toggle.checked;
+        document.querySelectorAll('.trainee-row').forEach(function(row) {
+          var displayName = row.getAttribute('data-display-name');
+          if (hideTaken && displayName && displayName.trim() !== '') {
+            row.style.display = 'none';
+          } else {
+            row.style.display = '';
+          }
+        });
+      }
+      toggle.addEventListener('change', updateTraineeRowVisibility);
+      // Initial call
+      updateTraineeRowVisibility();
+
+      // Handle trainee name input changes
+      var nameInputs = document.querySelectorAll('.trainee-name-input');
+      nameInputs.forEach(function(input) {
+        input.addEventListener('input', function() {
+          var username = input.getAttribute('data-username');
+          var name = input.value;
+          fetch('/api/trainee-name?username=' + encodeURIComponent(username) + '&name=' + encodeURIComponent(name), {
+            method: 'POST'
+          });
+        });
+      });
+
+      // WebSocket logic for real-time trainee name updates
+      var wsConnected = false;
+      var ws;
+      function connectWS() {
+        ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws/trainee-names');
+        ws.onopen = function() {
+          wsConnected = true;
+        };
+        ws.onmessage = function(event) {
+          var names = JSON.parse(event.data);
+          updateTraineeInputs(names);
+        };
+        ws.onclose = function() {
+          wsConnected = false;
+          // Fallback to polling if websocket closes
+          startPolling();
+        };
+        ws.onerror = function() {
+          ws.close();
+        };
+      }
+      function startPolling() {
+        if (window.pollingInterval) return;
+        window.pollingInterval = setInterval(function() {
+          fetch('/api/trainee-names')
+            .then(function(response) { return response.json(); })
+            .then(function(names) {
+              updateTraineeInputs(names);
+            });
+        }, 2000);
+      }
+
+      function updateTraineeInputs(names) {
+        document.querySelectorAll('.trainee-name-input').forEach(function(input) {
+          var username = input.getAttribute('data-username');
+          var current = input.value;
           // Use nullish coalescing to handle empty string correctly
           var newName = (names[username] !== undefined && names[username] !== null) ? names[username] : '';
           // Only update if the value is different and the input is not focused
           if (document.activeElement !== input && current !== newName) {
             input.value = newName;
           }
+          // Update row attribute for filtering
+          var row = input.closest('.trainee-row');
+          if (row) row.setAttribute('data-display-name', newName);
+        });
+        updateTraineeRowVisibility();
+      }
+
+      // Toggle hide taken trainees
+      var toggle = document.getElementById('toggleHideTaken');
+      function updateTraineeRowVisibility() {
+        var hideTaken = toggle.checked;
+        document.querySelectorAll('.trainee-row').forEach(function(row) {
+          var displayName = row.getAttribute('data-display-name');
+          if (hideTaken && displayName && displayName.trim() !== '') {
+            row.style.display = 'none';
+          } else {
+            row.style.display = '';
+          }
         });
       }
+      toggle.addEventListener('change', updateTraineeRowVisibility);
+      // Initial call
+      updateTraineeRowVisibility();
 
       // --- Collaborative input lock logic ---
       // Track which username is currently being edited (locked)
