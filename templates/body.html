@@ -10,14 +10,12 @@
 {{end}}
 
 <h2>Tools</h2>
-
 <ul>
   <li><a href="https://argocd.{{ $.clusterName}}.{{ $.clusterDomain}}">ArgoCD</a></li>
   <li><a href="https://gitea.{{ $.clusterName}}.{{ $.clusterDomain}}">Gitea</a></li>
 </ul>
 
 <h2>Webshells</h2>
-
 <table class="table .table-striped">
     <thead class="table-light">
       <tr>
@@ -25,6 +23,7 @@
         <th scope="col">Accounts</th>
         <th scope="col">Password</th>
         <th scope="col">Training Pages</th>
+        <th scope="col">Your Name</th>
       </tr>
     </thead>
     <tbody class="table-group-divider">
@@ -32,13 +31,15 @@
       <tr>
         <td><a href="https://{{ .Username }}:{{ .Password }}@{{ .Username }}.{{ $.clusterName}}.{{ $.clusterDomain}}">https://{{ .Username }}.{{ $.clusterName}}.{{ $.clusterDomain}}</a></td>
         <td>
-          Username: {{ .Username }}<br />
+          Username: {{ .Username }}
+          {{ if .IsAdmin }}
+            <span class="badge bg-warning text-dark ms-1" title="Admin account">Admin</span>
+          {{ end }}<br />
           Namespace: {{ .Username }}<br &>
         </td>
         <td>
           <span id="password{{ .Username }}">{{ .Password }}</span> 
           <iconify-icon class="copy-icon" data-password-id="password{{ .Username }}" data-bs-toggle="tooltip" data-bs-placement="right" title="Copy to Clipboard" icon="mdi:content-copy"></iconify-icon>
-    
         </td>
         <td>
             <ul>
@@ -49,6 +50,9 @@
                 <li><a href="https://cilium-basics.training.acend.ch">Cilium Basics</a></li>
                 <li><a href="https://terraform-azure.training.acend.ch/">Terraform Basics on Azure</a></li>
             </ul>
+        </td>
+        <td>
+          <input type="text" class="form-control trainee-name-input" data-username="{{ .Username }}" value="{{ .DisplayName }}" placeholder="Enter your name..." />
         </td>
       </tr>
       {{ end }}
@@ -109,6 +113,140 @@
 
         });
       });
+
+      // Handle trainee name input changes
+      var nameInputs = document.querySelectorAll('.trainee-name-input');
+      nameInputs.forEach(function(input) {
+        input.addEventListener('input', function() {
+          var username = input.getAttribute('data-username');
+          var name = input.value;
+          fetch('/api/trainee-name?username=' + encodeURIComponent(username) + '&name=' + encodeURIComponent(name), {
+            method: 'POST'
+          });
+        });
+      });
+
+      // WebSocket logic for real-time trainee name updates
+      var wsConnected = false;
+      var ws;
+      function connectWS() {
+        ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws/trainee-names');
+        ws.onopen = function() {
+          wsConnected = true;
+        };
+        ws.onmessage = function(event) {
+          var names = JSON.parse(event.data);
+          updateTraineeInputs(names);
+        };
+        ws.onclose = function() {
+          wsConnected = false;
+          // Fallback to polling if websocket closes
+          startPolling();
+        };
+        ws.onerror = function() {
+          ws.close();
+        };
+      }
+      function startPolling() {
+        if (window.pollingInterval) return;
+        window.pollingInterval = setInterval(function() {
+          fetch('/api/trainee-names')
+            .then(function(response) { return response.json(); })
+            .then(function(names) {
+              updateTraineeInputs(names);
+            });
+        }, 2000);
+      }
+
+      function updateTraineeInputs(names) {
+        document.querySelectorAll('.trainee-name-input').forEach(function(input) {
+          var username = input.getAttribute('data-username');
+          var current = input.value;
+          // Use nullish coalescing to handle empty string correctly
+          var newName = (names[username] !== undefined && names[username] !== null) ? names[username] : '';
+          // Only update if the value is different and the input is not focused
+          if (document.activeElement !== input && current !== newName) {
+            input.value = newName;
+          }
+        });
+      }
+
+      // --- Collaborative input lock logic ---
+      // Track which username is currently being edited (locked)
+      var inputLocks = {};
+      var myUsername = null;
+      // Find my username by checking which input is editable and focused
+      document.querySelectorAll('.trainee-name-input').forEach(function(input) {
+        if (input === document.activeElement) {
+          myUsername = input.getAttribute('data-username');
+        }
+      });
+
+      // Broadcast lock/unlock via WebSocket or fallback to polling
+      function sendLock(username, locked) {
+        if (wsConnected && ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ type: locked ? 'lock' : 'unlock', username: username }));
+        }
+      }
+
+      // Listen for focus/blur on all inputs
+      document.querySelectorAll('.trainee-name-input').forEach(function(input) {
+        input.addEventListener('focus', function() {
+          var username = input.getAttribute('data-username');
+          sendLock(username, true);
+        });
+        input.addEventListener('blur', function() {
+          var username = input.getAttribute('data-username');
+          sendLock(username, false);
+        });
+      });
+
+      // Update input lock state for all users
+      function updateInputLocks() {
+        document.querySelectorAll('.trainee-name-input').forEach(function(input) {
+          var username = input.getAttribute('data-username');
+          if (inputLocks[username] && (!input.matches(':focus'))) {
+            input.disabled = true;
+            input.placeholder = 'Currently being edited by another user...';
+          } else {
+            input.disabled = false;
+            input.placeholder = 'Enter your name...';
+          }
+        });
+      }
+
+      // Extend WebSocket logic to handle lock/unlock messages
+      var origOnMessage = null;
+      function extendWS() {
+        if (!ws) return;
+        origOnMessage = ws.onmessage;
+        ws.onmessage = function(event) {
+          try {
+            var msg = JSON.parse(event.data);
+            if (msg && msg.type === 'locks') {
+              inputLocks = msg.locks || {};
+              updateInputLocks();
+              return;
+            }
+          } catch (e) {}
+          if (origOnMessage) origOnMessage(event);
+        };
+      }
+
+      // Patch connectWS to extend onmessage
+      var origConnectWS = connectWS;
+      connectWS = function() {
+        origConnectWS();
+        setTimeout(extendWS, 500); // Patch after connect
+      };
+      // --- End collaborative input lock logic ---
+
+      // Try to connect to WebSocket, fallback to polling if not supported
+      if (window.WebSocket) {
+        connectWS();
+      } else {
+        startPolling();
+      }
     });
   </script>
 
