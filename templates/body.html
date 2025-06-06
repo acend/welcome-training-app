@@ -139,8 +139,28 @@
           wsConnected = true;
         };
         ws.onmessage = function(event) {
-          var names = JSON.parse(event.data);
-          updateTraineeInputs(names);
+          try {
+            var msg = JSON.parse(event.data);
+            // Only update trainee names if the message is NOT a lock update
+            if (msg && msg.type === 'locks') {
+              inputLocks = msg.locks || {};
+              updateInputLocks();
+              return;
+            }
+            // Only update trainee names if the message is a names update (not a lock broadcast)
+            if (typeof msg === 'object' && !msg.type) {
+              updateTraineeInputs(msg);
+              return;
+            }
+          } catch (e) {
+            // fallback: if it's a names object, update
+            try {
+              var names = JSON.parse(event.data);
+              if (typeof names === 'object' && names !== null && !names.type) {
+                updateTraineeInputs(names);
+              }
+            } catch (e2) {}
+          }
         };
         ws.onclose = function() {
           wsConnected = false;
@@ -163,6 +183,7 @@
       }
 
       function updateTraineeInputs(names) {
+        console.log('Updating trainee inputs with names:', names);
         document.querySelectorAll('.trainee-name-input').forEach(function(input) {
           var username = input.getAttribute('data-username');
           var current = input.value;
@@ -215,8 +236,28 @@
           wsConnected = true;
         };
         ws.onmessage = function(event) {
-          var names = JSON.parse(event.data);
-          updateTraineeInputs(names);
+          try {
+            var msg = JSON.parse(event.data);
+            // Only update trainee names if the message is NOT a lock update
+            if (msg && msg.type === 'locks') {
+              inputLocks = msg.locks || {};
+              updateInputLocks();
+              return;
+            }
+            // Only update trainee names if the message is a names update (not a lock broadcast)
+            if (typeof msg === 'object' && !msg.type) {
+              updateTraineeInputs(msg);
+              return;
+            }
+          } catch (e) {
+            // fallback: if it's a names object, update
+            try {
+              var names = JSON.parse(event.data);
+              if (typeof names === 'object' && names !== null && !names.type) {
+                updateTraineeInputs(names);
+              }
+            } catch (e2) {}
+          }
         };
         ws.onclose = function() {
           wsConnected = false;
