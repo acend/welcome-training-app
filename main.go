@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -360,6 +361,36 @@ func getTraineeNamesHandler() http.Handler {
 	})
 }
 
+// Handler to return lab progress for a given username
+func getLabProgressHandler() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		username := r.URL.Query().Get("username")
+		if username == "" {
+			http.Error(w, "Missing username", http.StatusBadRequest)
+			return
+		}
+		url := fmt.Sprintf("https://example-web-app-%s.training.%s/progress", username, clusterDomain)
+		req, err := http.NewRequestWithContext(r.Context(), http.MethodGet, url, nil)
+		if err != nil {
+			http.Error(w, "Failed to create request", http.StatusInternalServerError)
+			return
+		}
+		req.Header.Set("flat", "true")
+		client := &http.Client{Timeout: 5 * time.Second}
+		resp, err := client.Do(req)
+		if err != nil || resp.StatusCode != 200 {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusServiceUnavailable)
+			w.Write([]byte(`{"error": "progress application not ready"}`))
+			return
+		}
+		defer resp.Body.Close()
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_, _ = io.Copy(w, resp.Body)
+	})
+}
+
 // Helper to get display name from ConfigMap
 func getDisplayName(clientset *kubernetes.Clientset, ctx context.Context, username string) string {
 	cmName := "trainee-displayname-" + username
@@ -380,6 +411,7 @@ func main() {
 	mux.Handle("/api/trainee-name", logging(updateTraineeNameHandler())) // New API endpoint
 	mux.Handle("/api/trainee-names", logging(getTraineeNamesHandler()))  // New polling endpoint
 	mux.Handle("/ws/trainee-names", wsTraineeNamesHandler())             // WebSocket endpoint
+	mux.Handle("/api/lab-progress", logging(getLabProgressHandler()))
 
 	port, ok := os.LookupEnv("PORT")
 	if !ok {

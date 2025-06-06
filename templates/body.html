@@ -43,6 +43,13 @@
               <span class="badge bg-danger">Webshell Not Ready</span>
             {{ end }}
           </div>
+          <div class="mt-2">
+            <div class="mt-1" id="progress-{{ .Username }}">
+              <a href="https://progress.training.acend.ch/?n={{ .Username }}" target="_blank" id="progress-link-{{ .Username }}">
+                <span class="badge bg-secondary">Loading progress...</span>
+              </a>
+            </div>
+          </div>
           {{ end }}
         </td>
         <td>
@@ -51,7 +58,6 @@
             <span class="badge bg-warning text-dark ms-1" title="Admin account">Admin</span>
           {{ end }}<br />
           Namespace: {{ .Username }}<br &>
-
         </td>
         <td>
           <span id="password{{ .Username }}">{{ .Password }}</span> 
@@ -401,6 +407,48 @@
       } else {
         startPolling();
       }
+      // --- Lab Progress for Teacher Mode (now via backend API) ---
+      function fetchLabProgress(username) {
+        var url = '/api/lab-progress?username=' + encodeURIComponent(username);
+        fetch(url)
+        .then(function(response) {
+          if (!response.ok) throw new Error('not ok');
+          return response.json();
+        })
+        .then(function(data) {
+          var percent = data.percent;
+          var el = document.getElementById('progress-' + username);
+          if (el) {
+            var progressUrl = 'https://example-web-app-' + encodeURIComponent(username) + '.training.{{ $.clusterDomain }}/progress';
+            if (percent === 100) {
+              el.innerHTML = `<a href='${progressUrl}' target='_blank' style='text-decoration:none'><span class='badge bg-success'>Lab Progress: 100%</span></a>`;
+            } else {
+              el.innerHTML = `<a href='${progressUrl}' target='_blank' style='text-decoration:none'><span class='badge bg-info text-dark'>Lab Progress: ${percent}%</span></a>`;
+            }
+          }
+        })
+        .catch(function() {
+          var el = document.getElementById('progress-' + username);
+          if (el) {
+            var progressUrl = 'https://example-web-app-' + encodeURIComponent(username) + '.training.{{ $.clusterDomain }}/progress';
+            el.innerHTML = `<a href='${progressUrl}' target='_blank' style='text-decoration:none'><span class='badge bg-danger'>progress application not ready</span></a>`;
+          }
+        });
+      }
+      function scheduleLabProgressUpdates() {
+        var rows = document.querySelectorAll('.trainee-row');
+        rows.forEach(function(row) {
+          var username = row.getAttribute('data-username');
+          if (document.getElementById('progress-' + username)) {
+            fetchLabProgress(username);
+            setInterval(function() { fetchLabProgress(username); }, 5 * 60 * 1000);
+          }
+        });
+      }
+      if (document.body.innerHTML.includes('progress-')) {
+        scheduleLabProgressUpdates();
+      }
+      // --- End Lab Progress ---
     });
   </script>
 
