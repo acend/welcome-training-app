@@ -33,13 +33,25 @@
     <tbody class="table-group-divider">
       {{ range .trainees}}
       <tr class="trainee-row" data-username="{{ .Username }}" data-display-name="{{ .DisplayName }}">
-        <td><a href="https://{{ .Username }}:{{ .Password }}@{{ .Username }}.{{ $.clusterName}}.{{ $.clusterDomain}}">https://{{ .Username }}.{{ $.clusterName}}.{{ $.clusterDomain}}</a></td>
+        <td>
+          <a href="https://{{ .Username }}:{{ .Password }}@{{ .Username }}.{{ $.clusterName}}.{{ $.clusterDomain}}">https://{{ .Username }}.{{ $.clusterName}}.{{ $.clusterDomain}}</a>
+          {{ if $.teacher }}
+          <div class="mt-2">
+            {{ if .PodReady }}
+              <span class="badge bg-success">Webshell Ready</span>
+            {{ else }}
+              <span class="badge bg-danger">Webshell Not Ready</span>
+            {{ end }}
+          </div>
+          {{ end }}
+        </td>
         <td>
           Username: {{ .Username }}
           {{ if .IsAdmin }}
             <span class="badge bg-warning text-dark ms-1" title="Admin account">Admin</span>
           {{ end }}<br />
           Namespace: {{ .Username }}<br &>
+
         </td>
         <td>
           <span id="password{{ .Username }}">{{ .Password }}</span> 

@@ -38,6 +38,7 @@ type Trainee struct {
 	Password    string
 	DisplayName string // New field for the display name
 	IsAdmin     bool
+	PodReady    bool // New field for pod status
 }
 
 // logging is middleware for wrapping any handler we want to track response
@@ -99,11 +100,34 @@ func index(teacher bool) http.Handler {
 				}
 			}
 
+			podReady := false
+			if teacher {
+				// Check pod status for {username}-webshell using label selector
+				labelSelector := fmt.Sprintf("app.kubernetes.io/instance=%s-webshell", username)
+				pods, err := clientset.CoreV1().Pods(username).List(ctx, metav1.ListOptions{
+					LabelSelector: labelSelector,
+				})
+				if err == nil {
+					for _, pod := range pods.Items {
+						for _, cs := range pod.Status.ContainerStatuses {
+							if cs.Ready {
+								podReady = true
+								break
+							}
+						}
+						if podReady {
+							break
+						}
+					}
+				}
+			}
+
 			trainee := Trainee{
 				Username:    username,
 				Password:    string(secret.Data[passwordKey]),
 				DisplayName: getDisplayName(clientset, ctx, username),
 				IsAdmin:     isAdmin,
+				PodReady:    podReady,
 			}
 			trainees = append(trainees, trainee)
 		}
