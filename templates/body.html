@@ -44,9 +44,9 @@
             {{ end }}
           </div>
           <div class="mt-2">
-            <div class="mt-1" id="progress-{{ .Username }}">
-              <a href="https://progress.training.acend.ch/?n={{ .Username }}" target="_blank" id="progress-link-{{ .Username }}">
-                <span class="badge bg-secondary">Loading progress...</span>
+            <div class="mt-1" id="k8s-progress-{{ .Username }}">
+              <a href="https://progress.training.acend.ch/?n={{ .Username }}" target="_blank" id="k8s-progress-link-{{ .Username }}">
+                Kubernetes Basics: <span class="badge bg-secondary">Loading progress...</span>
               </a>
             </div>
           </div>
@@ -297,21 +297,21 @@
         })
         .then(function(data) {
           var percent = data.percent;
-          var el = document.getElementById('progress-' + username);
+          var el = document.getElementById('k8s-progress-' + username);
           if (el) {
             var progressUrl = 'https://example-web-app-' + encodeURIComponent(username) + '.training.{{ $.clusterDomain }}/progress';
             if (percent === 100) {
-              el.innerHTML = `<a href='${progressUrl}' target='_blank' style='text-decoration:none'><span class='badge bg-success'>Lab Progress: 100%</span></a>`;
+              el.innerHTML = `Kubernetes Basics: <a href='${progressUrl}' target='_blank' style='text-decoration:none'><span class='badge bg-success'>Lab Progress: 100%</span></a>`;
             } else {
-              el.innerHTML = `<a href='${progressUrl}' target='_blank' style='text-decoration:none'><span class='badge bg-info text-dark'>Lab Progress: ${percent}%</span></a>`;
+              el.innerHTML = `Kubernetes Basics: <a href='${progressUrl}' target='_blank' style='text-decoration:none'><span class='badge bg-info text-dark'>Lab Progress: ${percent}%</span></a>`;
             }
           }
         })
         .catch(function() {
-          var el = document.getElementById('progress-' + username);
+          var el = document.getElementById('k8s-progress-' + username);
           if (el) {
             var progressUrl = 'https://example-web-app-' + encodeURIComponent(username) + '.training.{{ $.clusterDomain }}/progress';
-            el.innerHTML = `<a href='${progressUrl}' target='_blank' style='text-decoration:none'><span class='badge bg-danger'>progress application not ready</span></a>`;
+            el.innerHTML = `Kubernetes Basics: <a href='${progressUrl}' target='_blank' style='text-decoration:none'><span class='badge bg-danger'>Progress application not ready</span></a>`;
           }
         });
       }
@@ -319,13 +319,13 @@
         var rows = document.querySelectorAll('.trainee-row');
         rows.forEach(function(row) {
           var username = row.getAttribute('data-username');
-          if (document.getElementById('progress-' + username)) {
+          if (document.getElementById('k8s-progress-' + username)) {
             fetchLabProgress(username);
             setInterval(function() { fetchLabProgress(username); }, 5 * 60 * 1000);
           }
         });
       }
-      if (document.body.innerHTML.includes('progress-')) {
+      if (document.body.innerHTML.includes('k8s-progress-')) {
         scheduleLabProgressUpdates();
       }
       // --- End Lab Progress ---
