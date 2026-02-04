@@ -2,7 +2,7 @@ module github.com/acend/training-welcome-app
 
 go 1.25.0
 
-toolchain go1.25.6
+toolchain go1.25.7
 
 require (
 	github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674
